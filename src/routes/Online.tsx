@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { listen } from "@tauri-apps/api/event";
+import { Check, ExternalLink, Heart, Link2, Lock, Sparkles } from "lucide-react";
 import { api, errMessage } from "../lib/api";
-import type { NexusMod, UpdatedModRef } from "../lib/types";
+import type { InstalledMod, NexusMod, UpdatedModRef } from "../lib/types";
 import { Button, Spinner, useAsync, useToast } from "../lib/ui";
 import { useApp } from "../App";
 
@@ -22,7 +23,7 @@ type Feed = "trending" | "latest_added" | "latest_updated";
 const PAGE_SIZE = 12;
 
 export default function Online() {
-  const { settings, reloadSettings, bumpMods } = useApp();
+  const { settings, reloadSettings, bumpMods, modsVersion } = useApp();
   const toast = useToast();
   const [feed, setFeed] = useState<Feed>("trending");
   const [link, setLink] = useState("");
@@ -46,6 +47,14 @@ export default function Online() {
 
   const loggedIn = !!settings.nexus_api_key;
   const isUpdatedFeed = feed === "latest_updated";
+
+  const { data: installedMods } = useAsync<InstalledMod[]>(
+    () => (loggedIn ? api.listInstalled() : Promise.resolve([])),
+    [loggedIn, modsVersion]
+  );
+  const installedNexusIds = new Set(
+    (installedMods ?? []).filter((m) => m.source === "nexus").map((m) => m.mod_id)
+  );
 
   // Trending / Newest: Nexus returns full mod objects for these already, but
   // as a fixed top-10 snapshot (verified: page/offset/count params do
@@ -233,14 +242,14 @@ export default function Online() {
   if (!loggedIn) {
     return (
       <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-4 text-center">
-        <div className="text-4xl">🔐</div>
+        <Lock className="h-10 w-10 text-neutral-500" />
         <h2 className="text-xl font-semibold">Connect your Nexus account</h2>
         <p className="text-sm text-neutral-400">
           Mods are hosted on Nexus, which needs a (free) account to download. Click below — a
           browser tab opens, you hit <b>Authorize</b> once, and you're in. No key copying.
         </p>
         <Button variant="primary" disabled={loggingIn} onClick={login}>
-          {loggingIn ? <Spinner /> : "🔗"} Login with Nexus
+          {loggingIn ? <Spinner /> : <Link2 className="h-4 w-4" />} Login with Nexus
         </Button>
 
         <div className="w-full border-t border-neutral-800 pt-4">
@@ -253,7 +262,8 @@ export default function Online() {
                 onClick={autoCreate}
                 className="w-full text-xs"
               >
-                {autoCreating ? <Spinner /> : "✨"} Create temporary account automatically
+                {autoCreating ? <Spinner /> : <Sparkles className="h-4 w-4" />} Create temporary account
+                automatically
               </Button>
             </>
           ) : autoStep === "registering" ? (
@@ -340,38 +350,67 @@ export default function Online() {
       )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {visible.map((m) => (
-          <div
-            key={m.mod_id}
-            className="flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/40"
-          >
-            {m.picture_url && <img src={m.picture_url} alt="" className="h-32 w-full object-cover" />}
-            <div className="flex flex-1 flex-col gap-1 p-3">
-              <div className="font-medium">{m.name}</div>
-              <div className="line-clamp-2 flex-1 text-xs text-neutral-500">{m.summary}</div>
-              <div className="mt-1 flex items-center justify-between text-[11px] text-neutral-500">
-                <span>{m.author}</span>
-                <span>♥ {m.endorsement_count ?? 0}</span>
-              </div>
-              <div className="mt-2 flex gap-2">
-                <Button
-                  variant="primary"
-                  className="flex-1"
-                  disabled={installingId === m.mod_id}
-                  onClick={() => install(m)}
-                >
-                  {installingId === m.mod_id ? <Spinner /> : "Install"}
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => openUrl(`https://www.nexusmods.com/scavprototype/mods/${m.mod_id}`)}
-                >
-                  ↗
-                </Button>
+        {visible.map((m) => {
+          const installed = installedNexusIds.has(m.mod_id);
+          return (
+            <div
+              key={m.mod_id}
+              className="flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/40"
+            >
+              {m.picture_url && (
+                <div className="relative">
+                  <img src={m.picture_url} alt="" className="h-32 w-full object-cover" />
+                  {installed && (
+                    <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-green-600/90 px-2 py-0.5 text-[10px] font-medium text-white shadow">
+                      <Check className="h-3 w-3" /> Installed
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className="flex flex-1 flex-col gap-1 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{m.name}</span>
+                  {installed && !m.picture_url && (
+                    <span className="flex items-center gap-1 rounded-full bg-green-600/20 px-2 py-0.5 text-[10px] font-medium text-green-300">
+                      <Check className="h-3 w-3" /> Installed
+                    </span>
+                  )}
+                </div>
+                <div className="line-clamp-2 flex-1 text-xs text-neutral-500">{m.summary}</div>
+                <div className="mt-1 flex items-center justify-between text-[11px] text-neutral-500">
+                  <span>{m.author}</span>
+                  <span className="flex items-center gap-1">
+                    <Heart className="h-3 w-3" /> {m.endorsement_count ?? 0}
+                  </span>
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <Button
+                    variant={installed ? "default" : "primary"}
+                    className="flex-1"
+                    disabled={installingId === m.mod_id}
+                    onClick={() => install(m)}
+                  >
+                    {installingId === m.mod_id ? (
+                      <Spinner />
+                    ) : installed ? (
+                      <>
+                        <Check className="h-4 w-4" /> Installed
+                      </>
+                    ) : (
+                      "Install"
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => openUrl(`https://www.nexusmods.com/scavprototype/mods/${m.mod_id}`)}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {!loading && visible.length > 0 && (

@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
+import {
+  ArrowRight,
+  Check,
+  Download,
+  FolderOpen,
+  Link2,
+  Search,
+  Sparkles,
+  Star,
+  X,
+} from "lucide-react";
 import { api, errMessage } from "../lib/api";
 import type { BepInExStatus, DetectedGame } from "../lib/types";
 import { Button, Spinner, useToast } from "../lib/ui";
@@ -154,9 +165,11 @@ export default function Setup() {
         {gameSet && <div className="mb-2 break-all text-xs text-green-300">{settings.game_path}</div>}
         <div className="flex gap-2">
           <Button variant="primary" disabled={detecting} onClick={autodetect}>
-            {detecting ? <Spinner /> : "🔍"} Auto-detect
+            {detecting ? <Spinner /> : <Search className="h-4 w-4" />} Auto-detect
           </Button>
-          <Button onClick={browse}>📁 Choose folder…</Button>
+          <Button onClick={browse}>
+            <FolderOpen className="h-4 w-4" /> Choose folder…
+          </Button>
         </div>
 
         {candidates.length > 0 && (
@@ -182,10 +195,10 @@ export default function Setup() {
                   disabled={confirming === c.path}
                   onClick={() => acceptCandidate(c)}
                 >
-                  {confirming === c.path ? <Spinner /> : "✓"} Yes
+                  {confirming === c.path ? <Spinner /> : <Check className="h-4 w-4" />} Yes
                 </Button>
                 <Button variant="ghost" onClick={() => rejectCandidate(c)}>
-                  ✕ No
+                  <X className="h-4 w-4" /> No
                 </Button>
               </div>
             ))}
@@ -201,7 +214,7 @@ export default function Setup() {
           </div>
         ) : (
           <Button variant="primary" disabled={!gameSet || installing} onClick={installBepinex}>
-            {installing ? <Spinner /> : "⬇"} Install BepInEx
+            {installing ? <Spinner /> : <Download className="h-4 w-4" />} Install BepInEx
           </Button>
         )}
         {bepinex?.needs_proton_setup && bepinex.proton_launch_option && (
@@ -218,9 +231,16 @@ export default function Setup() {
       {/* Step 3 — nexus login (SSO) */}
       <Step n={3} title="Connect Nexus (one click)" done={loggedIn} disabled={!gameSet}>
         {loggedIn ? (
-          <div className="text-xs text-green-300">
+          <div className="flex items-center gap-1 text-xs text-green-300">
             Signed in as {settings.nexus_user}
-            {settings.is_premium ? " · Premium ★" : " · Free"}.
+            {settings.is_premium ? (
+              <>
+                {" "}
+                · Premium <Star className="h-3 w-3 fill-amber-400 text-amber-400" />.
+              </>
+            ) : (
+              " · Free."
+            )}
           </div>
         ) : (
           <>
@@ -229,7 +249,7 @@ export default function Setup() {
               <b>Authorize</b> once, and you're done. No keys to copy.
             </p>
             <Button variant="primary" disabled={!gameSet || loggingIn} onClick={login}>
-              {loggingIn ? <Spinner /> : "🔗"} Login with Nexus
+              {loggingIn ? <Spinner /> : <Link2 className="h-4 w-4" />} Login with Nexus
             </Button>
             <div className="mt-3 border-t border-neutral-800 pt-3">
               <p className="mb-2 text-xs text-neutral-500">
@@ -256,7 +276,7 @@ export default function Setup() {
                 </div>
               ) : (
                 <Button variant="ghost" disabled={loggingIn} onClick={autoCreate}>
-                  {autoCreating ? <Spinner /> : "✨"} Create temporary account
+                  {autoCreating ? <Spinner /> : <Sparkles className="h-4 w-4" />} Create temporary account
                 </Button>
               )}
             </div>
@@ -269,7 +289,7 @@ export default function Setup() {
           You can also log in later from the Online tab.
         </span>
         <Button variant="primary" disabled={!gameSet} onClick={finish}>
-          Start modding →
+          Start modding <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -301,7 +321,7 @@ function Step({
             done ? "bg-green-600 text-white" : "bg-neutral-700 text-neutral-200"
           }`}
         >
-          {done ? "✓" : n}
+          {done ? <Check className="h-3.5 w-3.5" /> : n}
         </span>
         <span className="font-medium">{title}</span>
       </div>

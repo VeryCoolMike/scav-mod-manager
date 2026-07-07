@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
+import { Copy, Download, Files, Plus, Trash2, Upload } from "lucide-react";
 import { api, errMessage } from "../lib/api";
 import { Button, Spinner, useToast } from "../lib/ui";
 import { useApp } from "../App";
@@ -143,9 +144,11 @@ export default function Profiles() {
           className="flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-green-600"
         />
         <Button variant="primary" onClick={create} disabled={!newName.trim()}>
-          + Create
+          <Plus className="h-4 w-4" /> Create
         </Button>
-        <Button onClick={importBundle}>⬆ Import</Button>
+        <Button onClick={importBundle}>
+          <Upload className="h-4 w-4" /> Import
+        </Button>
       </div>
 
       <div className="flex gap-2 rounded-lg border border-neutral-800 bg-neutral-900/40 p-3">
@@ -156,7 +159,7 @@ export default function Profiles() {
           className="flex-1 rounded-md border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-green-600"
         />
         <Button variant="primary" onClick={importCode} disabled={!codeInput.trim() || !!importProgress}>
-          {importProgress ? <Spinner /> : "⧉"} Import code
+          {importProgress ? <Spinner /> : <Copy className="h-4 w-4" />} Import code
         </Button>
       </div>
       {importProgress && (
@@ -185,17 +188,17 @@ export default function Profiles() {
                 </Button>
               )}
               <Button variant="ghost" onClick={() => exportCode(p)} title="Copy mod-list code">
-                ⧉ Code
+                <Copy className="h-4 w-4" /> Code
               </Button>
               <Button variant="ghost" onClick={() => exportBundle(p)} title="Export zip bundle">
-                ⬇ Export
+                <Download className="h-4 w-4" /> Export
               </Button>
               <Button variant="ghost" onClick={() => clone(p)}>
-                ⎘ Clone
+                <Files className="h-4 w-4" /> Clone
               </Button>
               {p !== "Default" && (
                 <Button variant="danger" onClick={() => del(p)}>
-                  🗑
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </div>

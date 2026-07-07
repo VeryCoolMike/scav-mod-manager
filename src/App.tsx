@@ -2,6 +2,16 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { listen } from "@tauri-apps/api/event";
 import { check as checkForUpdate, type Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
+import {
+  Blocks,
+  Download,
+  Globe,
+  FolderKanban,
+  Play,
+  Settings as SettingsIcon,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 import { api, errMessage } from "./lib/api";
 import type { Settings } from "./lib/types";
 import { Button, Spinner, ToastProvider, useToast } from "./lib/ui";
@@ -141,11 +151,11 @@ function Shell() {
     );
   }
 
-  const tabs: { id: Tab; label: string; icon: string }[] = [
-    { id: "mods", label: "Installed", icon: "🧩" },
-    { id: "online", label: "Online", icon: "🌐" },
-    { id: "profiles", label: "Profiles", icon: "🗂️" },
-    { id: "settings", label: "Settings", icon: "⚙️" },
+  const tabs: { id: Tab; label: string; icon: LucideIcon }[] = [
+    { id: "mods", label: "Installed", icon: Blocks },
+    { id: "online", label: "Online", icon: Globe },
+    { id: "profiles", label: "Profiles", icon: FolderKanban },
+    { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
 
   return (
@@ -168,7 +178,7 @@ function Shell() {
                     : "text-neutral-300 hover:bg-neutral-800"
                 }`}
               >
-                <span>{t.icon}</span>
+                <t.icon className="h-4 w-4" />
                 {t.label}
               </button>
             ))}
@@ -181,7 +191,9 @@ function Shell() {
               {settings.nexus_user ? (
                 <>
                   Nexus: <span className="text-neutral-300">{settings.nexus_user}</span>
-                  {settings.is_premium && <span className="ml-1 text-amber-400">★</span>}
+                  {settings.is_premium && (
+                    <Star className="ml-1 inline-block h-3 w-3 fill-amber-400 text-amber-400" />
+                  )}
                 </>
               ) : (
                 <span className="text-neutral-500">Nexus: not signed in</span>
@@ -200,7 +212,7 @@ function Shell() {
               </span>
               <div className="flex gap-2">
                 <Button variant="primary" disabled={updating} onClick={installUpdate}>
-                  {updating ? <Spinner /> : "⬇"} Update & Restart
+                  {updating ? <Spinner /> : <Download className="h-4 w-4" />} Update & Restart
                 </Button>
                 <Button variant="ghost" disabled={updating} onClick={() => setAvailable(null)}>
                   Later
@@ -215,7 +227,7 @@ function Shell() {
                 Launch Vanilla
               </Button>
               <Button variant="primary" disabled={busyLaunch} onClick={() => launch(true)}>
-                {busyLaunch ? <Spinner /> : "▶"} Launch Modded
+                {busyLaunch ? <Spinner /> : <Play className="h-4 w-4" />} Launch Modded
               </Button>
             </div>
           </header>

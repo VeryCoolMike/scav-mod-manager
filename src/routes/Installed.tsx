@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { ExternalLink, Heart, RefreshCw, Trash2 } from "lucide-react";
 import { api, errMessage } from "../lib/api";
 import type { InstalledMod, UpdateInfo } from "../lib/types";
 import { Button, Spinner, useAsync, useToast } from "../lib/ui";
@@ -82,7 +83,7 @@ export default function ModsView() {
           </p>
         </div>
         <Button onClick={checkUpdates} disabled={checking || mods.length === 0}>
-          {checking ? <Spinner /> : "↻"} Check for updates
+          {checking ? <Spinner /> : <RefreshCw className="h-4 w-4" />} Check for updates
         </Button>
       </div>
 
@@ -132,18 +133,19 @@ export default function ModsView() {
               {m.page_url && (
                 <button
                   onClick={() => openUrl(m.page_url!)}
-                  className="text-xs text-neutral-400 hover:text-green-400"
+                  className="flex items-center gap-1 text-xs text-neutral-400 hover:text-green-400"
                   title={m.source === "gamebanana" ? "View on GameBanana" : "View on Nexus"}
                 >
-                  {m.source === "gamebanana" ? "GB" : "Nexus"} ↗
+                  {m.source === "gamebanana" ? "GB" : "Nexus"}
+                  <ExternalLink className="h-3 w-3" />
                 </button>
               )}
               {m.source === "nexus" && (
                 <button
                   onClick={() => endorse(m)}
-                  className="text-xs text-neutral-400 hover:text-amber-400"
+                  className="flex items-center gap-1 text-xs text-neutral-400 hover:text-amber-400"
                 >
-                  ♥ Endorse
+                  <Heart className="h-3 w-3" /> Endorse
                 </button>
               )}
 
@@ -159,7 +161,7 @@ export default function ModsView() {
               </label>
 
               <Button variant="danger" disabled={busy === m.key} onClick={() => remove(m)}>
-                {busy === m.key ? <Spinner /> : "🗑"}
+                {busy === m.key ? <Spinner /> : <Trash2 className="h-4 w-4" />}
               </Button>
             </div>
           );

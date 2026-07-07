@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { Check, FolderOpen, Link2, Search, Star, X } from "lucide-react";
 import { api, errMessage } from "../lib/api";
 import type { BepInExStatus, DetectedGame } from "../lib/types";
 import { Button, Spinner, useToast } from "../lib/ui";
@@ -69,7 +70,7 @@ export default function SettingsView() {
               })
             }
           >
-            {busy === "detect" ? <Spinner /> : "🔍"} Auto-detect
+            {busy === "detect" ? <Spinner /> : <Search className="h-4 w-4" />} Auto-detect
           </Button>
           <Button
             onClick={() =>
@@ -83,7 +84,7 @@ export default function SettingsView() {
               })
             }
           >
-            📁 Change…
+            <FolderOpen className="h-4 w-4" /> Change…
           </Button>
         </div>
 
@@ -110,10 +111,10 @@ export default function SettingsView() {
                   disabled={busy === "detect-accept"}
                   onClick={() => acceptCandidate(c)}
                 >
-                  ✓ Yes
+                  <Check className="h-4 w-4" /> Yes
                 </Button>
                 <Button variant="ghost" onClick={() => rejectCandidate(c)}>
-                  ✕ No
+                  <X className="h-4 w-4" /> No
                 </Button>
               </div>
             ))}
@@ -123,10 +124,22 @@ export default function SettingsView() {
 
       {/* Nexus */}
       <Section title="Nexus Mods account">
-        <div className="mb-2 text-xs text-neutral-400">
-          {settings.nexus_user
-            ? `Signed in as ${settings.nexus_user}${settings.is_premium ? " · Premium ★" : " · Free"}`
-            : "Not signed in"}
+        <div className="mb-2 flex items-center gap-1 text-xs text-neutral-400">
+          {settings.nexus_user ? (
+            <>
+              Signed in as {settings.nexus_user}
+              {settings.is_premium ? (
+                <>
+                  {" "}
+                  · Premium <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                </>
+              ) : (
+                " · Free"
+              )}
+            </>
+          ) : (
+            "Not signed in"
+          )}
         </div>
         <div className="mb-3 flex gap-2">
           {settings.nexus_user ? (
@@ -159,7 +172,7 @@ export default function SettingsView() {
                 })
               }
             >
-              {busy === "sso" ? <Spinner /> : "🔗"} Login with Nexus
+              {busy === "sso" ? <Spinner /> : <Link2 className="h-4 w-4" />} Login with Nexus
             </Button>
           )}
         </div>
