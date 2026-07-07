@@ -8,6 +8,7 @@ use crate::mods::InstalledMod;
 use crate::nexus::ValidateResult;
 use crate::state::{AppState, Settings};
 use crate::updates::UpdateInfo;
+use base64::Engine as _;
 use serde_json::Value;
 use tauri::Manager;
 use tauri::State;
@@ -320,7 +321,20 @@ pub fn import_profile_code(
     code: String,
     new_name: Option<String>,
 ) -> AppResult<ImportCodeStart> {
-    let parsed: Value = serde_json::from_str(code.trim())
+    let trimmed = code.trim();
+    let json_str = match trimmed.strip_prefix("SMM1-") {
+        Some(b64) => {
+            let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+                .decode(b64)
+                .map_err(|_| AppError::msg("That doesn't look like a valid mod-list code."))?;
+            String::from_utf8(bytes)
+                .map_err(|_| AppError::msg("That doesn't look like a valid mod-list code."))?
+        }
+        // Fall back to the old plaintext-JSON format for codes shared before
+        // codes were switched to a compact base64 encoding.
+        None => trimmed.to_string(),
+    };
+    let parsed: Value = serde_json::from_str(&json_str)
         .map_err(|_| AppError::msg("That doesn't look like a valid mod-list code."))?;
     let mods_json = parsed
         .get("mods")

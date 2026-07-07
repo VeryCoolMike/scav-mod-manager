@@ -1,5 +1,6 @@
 use crate::error::{AppError, AppResult};
 use crate::state::{sanitize, AppPaths, AppState};
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -217,7 +218,11 @@ pub fn export_code(state: &AppState, name: &str) -> AppResult<String> {
         "profile": profile.name,
         "mods": refs,
     });
-    Ok(serde_json::to_string_pretty(&payload)?)
+    let compact = serde_json::to_vec(&payload)?;
+    Ok(format!(
+        "SMM1-{}",
+        base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(compact)
+    ))
 }
 
 // ---- helpers ------------------------------------------------------------
