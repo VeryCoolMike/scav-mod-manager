@@ -37,7 +37,8 @@ jobs:
             curl \
             wget \
             file \
-            libssl-dev
+            libssl-dev \
+            rpm
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -73,3 +74,22 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+
+      # Tauri only bundles an installer (.msi) on Windows; also publish the
+      # raw standalone .exe as a "portable" build that needs no install.
+      - name: package portable Windows build
+        if: matrix.platform == 'windows-latest'
+        shell: bash
+        run: |
+          mkdir -p portable
+          cp "src-tauri/target/release/scav-mod-manager.exe" \
+            "portable/Scav-Mod-Manager_${{ github.ref_name }}_x64_portable.exe"
+
+      - name: upload portable Windows build
+        if: matrix.platform == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            "portable/Scav-Mod-Manager_${{ github.ref_name }}_x64_portable.exe" \
+            --clobber --repo "${{ github.repository }}"

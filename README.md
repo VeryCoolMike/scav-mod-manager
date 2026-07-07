@@ -15,8 +15,8 @@ the **BepInEx** mod loader.
 Grab the latest build for your platform from the
 [Releases page](https://github.com/VeryCoolMike/scav-mod-manager/releases/latest):
 
-- **Windows:** the `.msi` installer
-- **Linux:** the `.AppImage` (portable) or `.deb` (Debian/Ubuntu)
+- **Windows:** the `.msi` installer, or the standalone `_portable.exe` (no install needed)
+- **Linux:** the `.AppImage` (portable), `.deb` (Debian/Ubuntu), or `.rpm` (Fedora/RHEL)
 
 The app checks for updates on launch and can update itself in place (see below) — after the
 first install you generally won't need to come back here.
@@ -101,8 +101,9 @@ Requirements: Node 18+, Rust stable, and the
 `pnpm tauri build` produces, per platform:
 
 - **Windows:** `.msi` — **use the MSI**, not NSIS; the `nxm://` deep-link handler does not
-  register correctly with the NSIS bundler (Tauri issue #10095).
-- **Linux:** `.AppImage` and `.deb`. The `nxm://` scheme is registered via `xdg-mime`
+  register correctly with the NSIS bundler (Tauri issue #10095). CI also publishes a standalone
+  portable `.exe` (just the raw binary, no installer) alongside it.
+- **Linux:** `.AppImage`, `.deb`, and `.rpm`. The `nxm://` scheme is registered via `xdg-mime`
   (verify with `xdg-mime query default x-scheme-handler/nxm`).
 
 ## Architecture
