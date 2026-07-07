@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+dist
+dist-ssr
+
+# rust
+src-tauri/target
+
+# editor
+.vscode
+.idea
+*.log
+.DS_Store
