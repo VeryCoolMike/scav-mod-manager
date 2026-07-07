@@ -1,6 +1,6 @@
 {
   "name": "scav-mod-manager",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An r2modman-style mod manager for Casualties: Unknown / Scav Prototype",
   "type": "module",
   "scripts": {

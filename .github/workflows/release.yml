@@ -87,6 +87,7 @@ jobs:
 
       - name: upload portable Windows build
         if: matrix.platform == 'windows-latest'
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
