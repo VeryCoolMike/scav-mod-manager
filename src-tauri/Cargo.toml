@@ -1,6 +1,6 @@
 [package]
 name = "scav-mod-manager"
-version = "0.1.5"
+version = "0.1.6"
 description = "An r2modman-style mod manager for Casualties: Unknown / Scav Prototype"
 authors = ["you"]
 edition = "2021"
